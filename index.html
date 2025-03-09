@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>নেটস্থা - ইন্টারনেটের অবস্থা চেক করেন</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>নেটস্থা</h1>
+        <p>আপনার ইন্টারনেট সংযোগের অবস্থা নিম্নে দেখানো হয়েছে:</p>
+
+        <div id="status" class="card">
+            <h2>সংযোগ অবস্থা:</h2>
+            <p id="connection-status">চেক করা হচ্ছে...</p>
+        </div>
+
+        <div id="details" class="card">
+            <h2>নেটওয়ার্ক বিস্তারিত:</h2>
+            <ul>
+                <li><strong>সংযোগ ধরন:</strong> <span id="connection-type">--</span></li>
+                <li><strong>ডাউনলিংক গতি:</strong> <span id="downlink-speed">--</span> Mbps</li>
+                <li><strong>পিং (Latency):</strong> <span id="latency">--</span> ms</li>
+            </ul>
+        </div>
+
+        <div class="chart-container">
+            <h3>ডাউনলোড স্পিড গ্রাফ</h3>
+            <canvas id="speedChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h3>পিং (Latency) গ্রাফ</h3>
+            <canvas id="latencyChart"></canvas>
+        </div>
+    </div>
+  <div class="about-panel" onclick="toggleAboutPanel()">এই ওয়েবসাইট ব্যাপারে</div>
+    <style>
+      body {
+          font-family: 'Arial', sans-serif;
+          text-align: center;
+          background: #f0fff0;
+          color: #000000;
+          margin: 0;
+          padding: 0;
+      }
+
+      .container {
+          max-width: 600px;
+          margin: 50px auto;
+          padding: 20px;
+      }
+
+      h1 {
+          font-size: 26px;
+          font-weight: bold;
+      }
+
+      .h3 {
+        color: #ffffff;
+      }
+
+      .card {
+          background: #1E1E1E;
+          padding: 16px;
+          margin: 10px 0;
+          border-radius: 24px;
+          text-align: left;
+      }
+
+      .card h2 {
+          font-size: 18px;
+          color: #ffffff;
+          font-weight: bold;
+      }
+
+      .card p, .card li {
+          font-size: 14px;
+          color: #cccccc;
+      }
+
+      .card ul {
+          list-style: none;
+          padding: 0;
+      }
+
+      .chart-container {
+          margin-top: 20px;
+          background: #1E1E1E;
+          padding: 16px;
+          border-radius: 24px;
+          color: #ffffff;
+      }
+
+      canvas {
+          width: 100% !important;
+          height: 200px !important;
+      }
+      .about-panel {
+          position: fixed;
+          bottom: 10px;
+          left: 10px;
+          background: rgba(0, 0, 0, 0.6);
+          padding: 10px 15px;
+          border-radius: 5px;
+          color: #fff;
+          font-size: 12px;
+          z-index: 1000;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          overflow: hidden;
+          white-space: nowrap;
+          max-width: 200px;
+      }
+      
+      .about-panel:hover {
+          padding-right: 25px;
+          background: rgba(0, 0, 0, 0.8);
+      }
+      
+      .about-panel:hover::after {
+          content: ' - স্বীকৃতি';
+          color: #aaa;
+      }
+      
+      .about-panel.expanded {
+          max-width: 400px;
+          white-space: normal;
+          padding: 20px;
+      }
+      
+      .about-panel.expanded::after {
+          content: '';
+      }
+      
+      .about-panel a {
+          color: #00e0ff;
+          text-decoration: none;
+          transition: color 0.3s;
+      }
+      
+      .about-panel a:hover {
+          color: #fff;
+      }
+    </style>
+    <script>
+    let speedData = [];
+    let latencyData = [];
+    let timeLabels = [];
+    
+    const speedCtx = document.getElementById("speedChart").getContext("2d");
+    const latencyCtx = document.getElementById("latencyChart").getContext("2d");
+    const speedChart = new Chart(speedCtx, {
+        type: "line",
+        data: {
+            labels: timeLabels,
+            datasets: [{
+                label: "ডাউনলোড স্পিড (Mbps)",
+                data: speedData,
+                borderColor: "#1abc9c",
+                borderWidth: 2,
+                fill: false,
+                tension: 0.2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+    
+    const latencyChart = new Chart(latencyCtx, {
+        type: "line",
+        data: {
+            labels: timeLabels,
+            datasets: [{
+                label: "Latency (ms)",
+                data: latencyData,
+                borderColor: "#e74c3c",
+                borderWidth: 2,
+                fill: false,
+                tension: 0.2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+      
+    function checkNetwork() {
+        let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        let now = new Date().toLocaleTimeString();
+    
+        document.getElementById("connection-status").innerText = navigator.onLine ? "সংযুক্ত ✅" : "সংযোগ নেই ❌";
+    
+        if (connection) {
+            let speed = connection.downlink || 0;
+            let latency = connection.rtt || 0;
+    
+            document.getElementById("connection-type").innerText = connection.effectiveType || "অজানা";
+            document.getElementById("downlink-speed").innerText = speed.toFixed(2);
+            document.getElementById("latency").innerText = latency;
+
+            if (timeLabels.length >= 10) {
+                timeLabels.shift();
+                speedData.shift();
+                latencyData.shift();
+            }
+            timeLabels.push(now);
+            speedData.push(speed);
+            latencyData.push(latency);
+    
+            speedChart.update();
+            latencyChart.update();
+        } else {
+            document.getElementById("connection-type").innerText = "এই মুহূর্তে পাওয়া যাচ্ছে না";
+            document.getElementById("downlink-speed").innerText = "এই মুহূর্তে পাওয়া যাচ্ছে না";
+            document.getElementById("latency").innerText = "এই মুহূর্তে পাওয়া যাচ্ছে না";
+        }
+    }
+  
+    setInterval(checkNetwork, 1000);
+
+    window.onload = checkNetwork;
+          
+     function toggleAboutPanel() {
+        const aboutPanel = document.querySelector('.about-panel');
+        if (!aboutPanel.classList.contains('expanded')) {
+            aboutPanel.innerHTML = `
+                এই ওয়েবসাইট ব্যাপারে - স্বীকৃতি
+                <br><br>
+                Made by <a href="https://bd.mux8.com/" target="_blank">বঙ্গযুক্তি</a> © 2025
+            `;
+            aboutPanel.classList.add('expanded');
+        } else {
+            aboutPanel.innerHTML = 'এই ওয়েবসাইট ব্যাপারে';
+            aboutPanel.classList.remove('expanded');
+        }
+    }
+  </script>
+</body>
+</html>
