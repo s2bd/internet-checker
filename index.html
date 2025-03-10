@@ -23,7 +23,9 @@
                 <li><strong>সংযোগ ধরন:</strong> <span id="connection-type">--</span></li>
                 <li><strong>ডাউনলিংক গতি:</strong> <span id="downlink-speed">--</span> Mbps</li>
                 <li><strong>পিং (Latency):</strong> <span id="latency">--</span> ms</li>
-              <li><strong>IP ঠিকানা:</strong> <span id="ip-address">--</span></li>
+                <li><strong>ব্রাউজার ও অপারেটিং সিস্টেম:</strong> <span id="user-agent">--</span></li>
+                <li><strong>Public IP ঠিকানা:</strong> <span id="ip-address">--</span></li>
+                <li><strong>Local IP ঠিকানা:</strong> <span id="local-ip-address">--</span></li>
             </ul>
         </div>
 
@@ -148,14 +150,33 @@
     </style>
     <script>
     async function getPublicIP() {
-    try {
-        let response = await fetch("https://api64.ipify.org?format=json");
-        let data = await response.json();
-        return data.ip;
-    } catch (error) {
-        return "IP পাওয়া যায়নি";
+        try {
+            let response = await fetch("https://api64.ipify.org?format=json", { cache: "no-store" });
+            let data = await response.json();
+            return data.ip;
+        } catch (error) {
+            return "IP পাওয়া যায়নি";
+        }
     }
-}
+    async function getLocalIPs() {
+        let ips = [];
+        let pc = new RTCPeerConnection({ iceServers: [] });
+        
+        pc.createDataChannel("");
+        pc.createOffer().then(offer => pc.setLocalDescription(offer));
+    
+        pc.onicecandidate = event => {
+            if (!event || !event.candidate) return;
+            let ip = event.candidate.address;
+            if (!ips.includes(ip)) {
+                ips.push(ip);
+                document.getElementById("local-ip-address").innerText += `${ip}`;
+            }
+        };
+    }
+        
+    getLocalIPs();
+
     let speedData = [];
     let latencyData = [];
     let timeLabels = [];
@@ -205,12 +226,12 @@
     });
       
     async function checkNetwork() {
-        let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
         let now = new Date().toLocaleTimeString();
     
         document.getElementById("connection-status").innerText = navigator.onLine ? "সংযুক্ত ✅" : "সংযোগ নেই ❌";
     
-        if (connection) {
+        if (connection && "downlink" in connection && "rtt" in connection) {
             let speed = connection.downlink || 0;
             let latency = connection.rtt || 0;
     
@@ -235,6 +256,7 @@
                 let ip = await getPublicIP();
                 ipElement.innerText = ip;
             }
+            document.getElementById("user-agent").innerText = navigator.userAgent;
 
         } else {
             document.getElementById("connection-type").innerText = "এই মুহূর্তে পাওয়া যাচ্ছে না";
