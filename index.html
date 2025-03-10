@@ -23,7 +23,7 @@
                 <li><strong>সংযোগ ধরন:</strong> <span id="connection-type">--</span></li>
                 <li><strong>ডাউনলিংক গতি:</strong> <span id="downlink-speed">--</span> Mbps</li>
                 <li><strong>পিং (Latency):</strong> <span id="latency">--</span> ms</li>
-              <li><strong>IP ঠিকানা:</strong> <span id="latency">--</span> ms</li>
+              <li><strong>IP ঠিকানা:</strong> <span id="ip-address">--</span></li>
             </ul>
         </div>
 
@@ -217,9 +217,6 @@
             document.getElementById("connection-type").innerText = connection.effectiveType || "অজানা";
             document.getElementById("downlink-speed").innerText = speed.toFixed(2);
             document.getElementById("latency").innerText = latency;
-          let ip = await getPublicIP();
-    document.getElementById("ip-address").innerText = ip;
-          
 
             if (timeLabels.length >= 10) {
                 timeLabels.shift();
@@ -232,6 +229,13 @@
     
             speedChart.update();
             latencyChart.update();
+
+            let ipElement = document.getElementById("ip-address");
+            if (ipElement) {
+                let ip = await getPublicIP();
+                ipElement.innerText = ip;
+            }
+
         } else {
             document.getElementById("connection-type").innerText = "এই মুহূর্তে পাওয়া যাচ্ছে না";
             document.getElementById("downlink-speed").innerText = "এই মুহূর্তে পাওয়া যাচ্ছে না";
@@ -239,7 +243,7 @@
         }
     }
   
-    setInterval(checkNetwork, 1000);
+    setInterval(async () => await checkNetwork(), 1000);
 
     window.onload = checkNetwork;
           
