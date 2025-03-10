@@ -10,7 +10,7 @@
 <body>
     <div class="container">
         <h1>নেটস্থা</h1>
-        <p>আপনার ইন্টারনেট সংযোগের অবস্থা নিম্নে দেখানো হয়েছে:</p>
+        <p>আপনার ইন্টারনেট সংযোগের অবস্থা নিচে দেখানো হয়েছে:</p>
 
         <div id="status" class="card">
             <h2>সংযোগ অবস্থা:</h2>
@@ -23,6 +23,7 @@
                 <li><strong>সংযোগ ধরন:</strong> <span id="connection-type">--</span></li>
                 <li><strong>ডাউনলিংক গতি:</strong> <span id="downlink-speed">--</span> Mbps</li>
                 <li><strong>পিং (Latency):</strong> <span id="latency">--</span> ms</li>
+              <li><strong>IP ঠিকানা:</strong> <span id="latency">--</span> ms</li>
             </ul>
         </div>
 
@@ -146,6 +147,15 @@
       }
     </style>
     <script>
+    async function getPublicIP() {
+    try {
+        let response = await fetch("https://api64.ipify.org?format=json");
+        let data = await response.json();
+        return data.ip;
+    } catch (error) {
+        return "IP পাওয়া যায়নি";
+    }
+}
     let speedData = [];
     let latencyData = [];
     let timeLabels = [];
@@ -207,6 +217,8 @@
             document.getElementById("connection-type").innerText = connection.effectiveType || "অজানা";
             document.getElementById("downlink-speed").innerText = speed.toFixed(2);
             document.getElementById("latency").innerText = latency;
+          let ip = await getPublicIP();
+    document.getElementById("ip-address").innerText = ip;
 
             if (timeLabels.length >= 10) {
                 timeLabels.shift();
@@ -235,8 +247,7 @@
         if (!aboutPanel.classList.contains('expanded')) {
             aboutPanel.innerHTML = `
                 এই ওয়েবসাইট ব্যাপারে - স্বীকৃতি
-                <br><br>
-                Made by <a href="https://bd.mux8.com/" target="_blank">বঙ্গযুক্তি</a> © 2025
+                <br><br>Made by <a href="https://bd.mux8.com/" target="_blank">বঙ্গযুক্তি</a> © 2025
             `;
             aboutPanel.classList.add('expanded');
         } else {
