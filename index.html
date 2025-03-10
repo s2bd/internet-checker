@@ -204,7 +204,7 @@
         }
     });
       
-    function checkNetwork() {
+    async function checkNetwork() {
         let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         let now = new Date().toLocaleTimeString();
     
@@ -219,6 +219,7 @@
             document.getElementById("latency").innerText = latency;
           let ip = await getPublicIP();
     document.getElementById("ip-address").innerText = ip;
+          
 
             if (timeLabels.length >= 10) {
                 timeLabels.shift();
