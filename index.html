@@ -27,7 +27,7 @@
                 <li><strong>পিং (Latency):</strong> <span id="latency">--</span> ms</li>
                 <li><strong>Public IP ঠিকানা:</strong> <span id="ip-address">--</span></li>
                 <li><strong>Local IP ঠিকানা:</strong> <span id="local-ip-address">--</span> (mDNS)</li>
-                li><strong>অবস্থান:</strong> <span id="ip-location">--</span></li>
+                <li><strong>অবস্থান:</strong> <span id="ip-location">--</span></li>
             </ul>
         </div>
 
@@ -176,6 +176,7 @@
             if (!ips.includes(ip)) {
                 ips.push(ip);
                 document.getElementById("local-ip-address").innerText = `${ip}`;
+                getLocation(ip);
             }
         };
     }
