@@ -161,22 +161,29 @@
         }
     }
     async function getLocalIPs() {
-        let ips = [];
+        let ips = new Set();
         let pc = new RTCPeerConnection({ iceServers: [] });
-        
+    
         pc.createDataChannel("");
-        pc.createOffer().then(offer => pc.setLocalDescription(offer));
+        pc.createOffer()
+            .then(offer => pc.setLocalDescription(offer))
+            .catch(err => console.error("Offer creation failed:", err));
     
         pc.onicecandidate = event => {
-            if (!event || !event.candidate) return;
-            let ip = event.candidate.address;
-            if (!ips.includes(ip)) {
-                ips.push(ip);
-                document.getElementById("local-ip-address").innerText += `${ip}`;
+            if (event && event.candidate) {
+                let candidate = event.candidate.candidate;
+                let ipMatch = candidate.match(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/); // IPv4 regex
+                if (ipMatch) {
+                    let ip = ipMatch[0];
+                    if (!ips.has(ip)) {
+                        ips.add(ip);
+                        document.getElementById("local-ip-address").innerText = ip;
+                    }
+                }
             }
         };
     }
-        
+ 
     getLocalIPs();
 
     let speedData = [];
