@@ -15,6 +15,9 @@
         <div id="status" class="card">
             <h2>সংযোগ অবস্থা:</h2>
             <p id="connection-status">চেক করা হচ্ছে...</p>
+            <ul>
+                <li><strong>ব্রাউজার ও অপারেটিং সিস্টেম:</strong><br> <span id="user-agent">--</span></li>
+            </ul>
         </div>
 
         <div id="details" class="card">
@@ -23,7 +26,6 @@
                 <li><strong>সংযোগ ধরন:</strong> <span id="connection-type">--</span></li>
                 <li><strong>ডাউনলিংক গতি:</strong> <span id="downlink-speed">--</span> Mbps</li>
                 <li><strong>পিং (Latency):</strong> <span id="latency">--</span> ms</li>
-                <li><strong>ব্রাউজার ও অপারেটিং সিস্টেম:</strong> <span id="user-agent">--</span></li>
                 <li><strong>Public IP ঠিকানা:</strong> <span id="ip-address">--</span></li>
                 <li><strong>Local IP ঠিকানা:</strong> <span id="local-ip-address">--</span></li>
             </ul>
@@ -235,7 +237,7 @@
             let speed = connection.downlink || 0;
             let latency = connection.rtt || 0;
     
-            document.getElementById("connection-type").innerText = connection.effectiveType || "অজানা";
+            document.getElementById("connection-type").innerText = connection.effectiveType ? connection.effectiveType.toUpperCase() : "অজানা";
             document.getElementById("downlink-speed").innerText = speed.toFixed(2);
             document.getElementById("latency").innerText = latency;
 
