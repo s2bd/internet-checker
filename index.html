@@ -183,19 +183,22 @@
 
     async function getLocation(ip) {
         try {
-            let response = await fetch(`https://tools.keycdn.com/geo?host=${ip}`);
+            let response = await fetch(`https://cors-anywhere.herokuapp.com/https://tools.keycdn.com/geo?host=${ip}`);
             let html = await response.text();
             let parser = new DOMParser();
-            let doc = parser.parseFromString(html, 'text/html');  
+            let doc = parser.parseFromString(html, 'text/html');
+        
             let country = doc.querySelector("dd:contains('Country')").textContent.trim();
             let continent = doc.querySelector("dd:contains('Continent')").textContent.trim();
             let coordinates = doc.querySelector("dd:contains('Coordinates')").textContent.trim();
+            
             let location = `${country}, ${continent}, ${coordinates}`;
             document.getElementById("ip-location").innerText = location;
         } catch (error) {
             document.getElementById("ip-location").innerText = "অবস্থান পাওয়া যায়নি";
         }
     }
+
 
     let speedData = [];
     let latencyData = [];
