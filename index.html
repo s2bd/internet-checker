@@ -27,6 +27,7 @@
                 <li><strong>পিং (Latency):</strong> <span id="latency">--</span> ms</li>
                 <li><strong>Public IP ঠিকানা:</strong> <span id="ip-address">--</span></li>
                 <li><strong>Local IP ঠিকানা:</strong> <span id="local-ip-address">--</span> (mDNS)</li>
+                li><strong>অবস্থান:</strong> <span id="ip-location">--</span></li>
             </ul>
         </div>
 
@@ -178,8 +179,19 @@
             }
         };
     }
- 
     getLocalIPs();
+
+    async function getLocation(ip) {
+        try {
+            let response = await fetch(`http://ip-api.com/json/${ip}`);
+            let data = await response.json();
+            let location = `${data.city}, ${data.regionName}, ${data.country}`;
+            document.getElementById("ip-location").innerText = location;
+        } catch (error) {
+            document.getElementById("ip-location").innerText = "অবস্থান পাওয়া যায়নি";
+        }
+    }
+    
 
     let speedData = [];
     let latencyData = [];
