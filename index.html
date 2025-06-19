@@ -3,45 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>নেটস্থা - ইন্টারনেটের অবস্থা চেক করেন</title>
+    <title>Netstate - Internet Checker</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>নেটস্থা</h1>
-        <p>আপনার ইন্টারনেট সংযোগের অবস্থা নিচে দেখানো হয়েছে:</p>
+        <h1>Netstate</h1>
+        <p>Information about your current connection:</p>
 
         <div id="status" class="card">
-            <h2>সংযোগ অবস্থা:</h2>
-            <p id="connection-status">চেক করা হচ্ছে...</p>
+            <h2>Network type:</h2>
+            <p id="connection-status">Checking...</p>
             <ul>
-                <li><strong>ব্রাউজার ও অপারেটিং সিস্টেম:</strong><br> <span id="user-agent">--</span></li>
+                <li><strong>Browser and OS:</strong><br> <span id="user-agent">--</span></li>
             </ul>
         </div>
 
         <div id="details" class="card">
-            <h2>নেটওয়ার্ক বিস্তারিত:</h2>
+            <h2>About this network:</h2>
             <ul>
-                <li><strong>সংযোগ ধরন:</strong> <span id="connection-type">--</span></li>
-                <li><strong>ডাউনলিংক গতি:</strong> <span id="downlink-speed">--</span> Mbps</li>
-                <li><strong>পিং (Latency):</strong> <span id="latency">--</span> ms</li>
-                <li><strong>Public IP ঠিকানা:</strong> <span id="ip-address">--</span></li>
-                <li><strong>Local IP ঠিকানা:</strong> <span id="local-ip-address">--</span> (mDNS)</li>
-                <li><strong>অবস্থান:</strong> <span id="ip-location">--</span></li>
+                <li><strong>Connection type:</strong> <span id="connection-type">--</span></li>
+                <li><strong>Download Speed:</strong> <span id="downlink-speed">--</span> Mbps</li>
+                <li><strong>Ping (Latency):</strong> <span id="latency">--</span> ms</li>
+                <li><strong>Public IP address:</strong> <span id="ip-address">--</span></li>
+                <li><strong>Local IP address:</strong> <span id="local-ip-address">--</span> (mDNS)</li>
+                <li><strong>Location:</strong> <span id="ip-location">--</span></li>
             </ul>
         </div>
 
         <div class="chart-container">
-            <h3>ডাউনলোড স্পিড গ্রাফ</h3>
+            <h3>Download Speed</h3>
             <canvas id="speedChart"></canvas>
         </div>
 
         <div class="chart-container">
-            <h3>পিং (Latency) গ্রাফ</h3>
+            <h3>Ping (Latency)</h3>
             <canvas id="latencyChart"></canvas>
         </div>
     </div>
-  <div class="about-panel" onclick="toggleAboutPanel()">এই ওয়েবসাইট ব্যাপারে</div>
+  <div class="about-panel" onclick="toggleAboutPanel()">About</div>
     <style>
       body {
           font-family: 'Arial', sans-serif;
@@ -126,7 +126,7 @@
       }
       
       .about-panel:hover::after {
-          content: ' - স্বীকৃতি';
+          content: ' - this website';
           color: #aaa;
       }
       
@@ -157,7 +157,7 @@
             let data = await response.json();
             return data.ip;
         } catch (error) {
-            return "IP পাওয়া যায়নি";
+            return "Couldn't find IP";
         }
     }
     async function getLocalIPs() {
@@ -195,7 +195,7 @@
             let location = `${country}, ${continent}, ${coordinates}`;
             document.getElementById("ip-location").innerText = location;
         } catch (error) {
-            document.getElementById("ip-location").innerText = "অবস্থান পাওয়া যায়নি";
+            document.getElementById("ip-location").innerText = "Couldn't find location";
         }
     }
 
@@ -211,7 +211,7 @@
         data: {
             labels: timeLabels,
             datasets: [{
-                label: "ডাউনলোড স্পিড (Mbps)",
+                label: "Bitrate (Mbps)",
                 data: speedData,
                 borderColor: "#1abc9c",
                 borderWidth: 2,
@@ -252,13 +252,13 @@
         let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
         let now = new Date().toLocaleTimeString();
     
-        document.getElementById("connection-status").innerText = navigator.onLine ? "সংযুক্ত ✅" : "সংযোগ নেই ❌";
+        document.getElementById("connection-status").innerText = navigator.onLine ? "Connected ✅" : "Disconnected ❌";
     
         if (connection && "downlink" in connection && "rtt" in connection) {
             let speed = connection.downlink || 0;
             let latency = connection.rtt || 0;
     
-            document.getElementById("connection-type").innerText = connection.effectiveType ? connection.effectiveType.toUpperCase() : "অজানা";
+            document.getElementById("connection-type").innerText = connection.effectiveType ? connection.effectiveType.toUpperCase() : "Unknown";
             document.getElementById("downlink-speed").innerText = speed.toFixed(2);
             document.getElementById("latency").innerText = latency;
 
@@ -283,9 +283,9 @@
             document.getElementById("user-agent").innerText = navigator.userAgent;
 
         } else {
-            document.getElementById("connection-type").innerText = "এই মুহূর্তে পাওয়া যাচ্ছে না";
-            document.getElementById("downlink-speed").innerText = "এই মুহূর্তে পাওয়া যাচ্ছে না";
-            document.getElementById("latency").innerText = "এই মুহূর্তে পাওয়া যাচ্ছে না";
+            document.getElementById("connection-type").innerText = "Not found";
+            document.getElementById("downlink-speed").innerText = "Not found";
+            document.getElementById("latency").innerText = "Not found";
         }
     }
   
@@ -297,12 +297,12 @@
         const aboutPanel = document.querySelector('.about-panel');
         if (!aboutPanel.classList.contains('expanded')) {
             aboutPanel.innerHTML = `
-                এই ওয়েবসাইট ব্যাপারে - স্বীকৃতি
-                <br><br>Made by <a href="https://bd.mux8.com/" target="_blank">বঙ্গযুক্তি</a> © 2025
+                About - this website
+                <br><br>Made by Stoobid © 2025
             `;
             aboutPanel.classList.add('expanded');
         } else {
-            aboutPanel.innerHTML = 'এই ওয়েবসাইট ব্যাপারে';
+            aboutPanel.innerHTML = 'this website';
             aboutPanel.classList.remove('expanded');
         }
     }
